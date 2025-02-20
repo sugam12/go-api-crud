@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/sugam12/go-api-crud/config"
 	types "github.com/sugam12/go-api-crud/payload"
 	"github.com/sugam12/go-api-crud/service/auth"
 	"github.com/sugam12/go-api-crud/utils"
@@ -33,7 +34,7 @@ func (h *Handler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	user := new(types.User)
 	user, err = h.store.GetUserByEmail(payload.UserName)
-	if err == nil {
+	if err != nil {
 		utils.WriteError(w, http.StatusBadRequest, fmt.Errorf("user with email %s does not exists", payload.UserName))
 		return
 	}
@@ -42,6 +43,14 @@ func (h *Handler) HandleLogin(w http.ResponseWriter, r *http.Request) {
 		utils.WriteError(w, http.StatusUnauthorized, fmt.Errorf("password of email %s do not match", payload.UserName))
 		return
 	}
+	secret := []byte(config.EnvVars.JWTSecret)
+	token, err := auth.CreateJWT(secret, user.Id)
+	if err != nil {
+		utils.WriteError(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	utils.WriteJSON(w, http.StatusOK, map[string]string{"token": token})
 
 	//create a jwt token for 24 hours and send it back as response
 }

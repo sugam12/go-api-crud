@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/sugam12/go-api-crud/service/product"
 	"github.com/sugam12/go-api-crud/service/user"
 )
 
@@ -28,6 +29,10 @@ func (s *APIServer) Run() error {
 	userStore := user.NewStore(s.db)
 	userService := user.NewHandler(userStore)
 	userService.RegisterRoutes(subrouter)
+
+	productStore := product.NewStore(s.db)
+	productService := product.NewHandler(productStore)
+	productService.RegisterRoutes(subrouter)
 
 	log.Println("listening in port", s.addr)
 	return http.ListenAndServe(s.addr, router)
