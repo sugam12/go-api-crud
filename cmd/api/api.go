@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	user "github.com/sugam12/go-api-crud/service"
+	"github.com/sugam12/go-api-crud/service/user"
 )
 
 type APIServer struct {
@@ -24,8 +24,11 @@ func NewAPIServer(addr string, db *sql.DB) *APIServer {
 func (s *APIServer) Run() error {
 	router := mux.NewRouter()
 	subrouter := router.PathPrefix("/api/v1").Subrouter()
-	userService := user.NewHandler()
+
+	userStore := user.NewStore(s.db)
+	userService := user.NewHandler(userStore)
 	userService.RegisterRoutes(subrouter)
+
 	log.Println("listening in port", s.addr)
 	return http.ListenAndServe(s.addr, router)
 }

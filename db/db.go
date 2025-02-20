@@ -1,14 +1,15 @@
 package db
 
 import (
+	"database/sql"
 	"log"
 
-	"github.com/jmoiron/sqlx"
+	"github.com/go-sql-driver/mysql"
 )
 
-func NewDBConnect() (*sqlx.DB, error) {
+func NewMySQLStorage(cfg mysql.Config) (*sql.DB, error) {
 
-	db, err := sqlx.Connect("postgres", "user=postgres dbname=GoLang sslmode=disable password=admin host=localhost")
+	db, err := sql.Open("mysql", cfg.FormatDSN())
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
